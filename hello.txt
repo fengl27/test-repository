@@ -1,1 +1,0 @@
-document.body.textContent = "Hello i stole your page"
