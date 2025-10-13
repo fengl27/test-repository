@@ -1,10 +1,11 @@
 var tiles = [];
-var screenSize = new Vect(width / 10, height / 10);
-var zoom = 2;
-//var tileSize = new Vect(Math.round(width / screenSize.x), Math.round(height / screenSize.y));
-var tileSize = new Vect(15, 15);
-screenSize.x = Math.floor(width / tileSize.x);
-screenSize.y = Math.floor(height / tileSize.y);
+var screenSize = new Vect(parseInt(prompt("x size")), parseInt(prompt("y size")));
+var zoom = 1.1;
+var tileSize = new Vect(Math.round(width / screenSize.x), Math.round(height / screenSize.y));
+tileSize.y = tileSize.x;
+//var tileSize = new Vect(width / 40, width / 40);
+//screenSize.x = Math.floor(width / tileSize.x);
+//screenSize.y = Math.floor(height / tileSize.y);
 
 for(var i = 0; i < screenSize.x * screenSize.y; i ++) {
     tiles.push([]);
@@ -98,7 +99,7 @@ var checkAllCollisions = function(pos, size) {
                 touchedRects.push(rects[i]);
             }
             if(rects[i][5]) {
-                Program.restart();
+                background(0, 255, 0);
             }
         }
     }
