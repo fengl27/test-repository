@@ -6,22 +6,25 @@
     <title>Jayden dod game</title>
     <style>
         #canvas {
-            width: calc(100vh - 10px);
+            width: calc(100% - 10px);
             height: calc(100vh - 10px);
-            background-color: #2D1141;
+            background-color: white;
             margin: 5px;
             box-shadow: 0px 0px 45px 5px rgba(45, 17, 65, 48);
         }
         body {
             margin: 0;
             padding: 0;
+            background-color: black;
+            overflow: hidden;
         }
     </style>
 </head>
 <body>
     <canvas id = "canvas"></canvas>
 
-    <!-- Joystick library -->
+    <script src = "vect.js"></script>
+    <script src = "utils.js"></script>
     <script src = "main.js"></script>
 </body>
 </html>
