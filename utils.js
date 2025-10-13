@@ -68,8 +68,8 @@ var phases = [
         stats: [200, 225, 600, 400, 300, 80, 160]// finalmost
     },
     {
-        time: 900,
-        stats: [2, 0, 0, 0, 0, 0, 0]// final
+        time: 999999,
+        stats: [150, 300, 600, 500, 400, 80, 260]// final
     }
 ];
 for(var i = 1; i < phases.length; i ++) {
