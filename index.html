@@ -5,13 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rando website</title>
     <style>
+        body {
+            background-color: rgb(155, 217, 254);
+            overflow-x: hidden;
+        }
         h1 {
             font-family: sans-serif;
             font-weight: normal;
+        }
+        .el {
+            border: 1px solid black;
+            aspect-ratio: 1;
+            background-color: rgb(17, 119, 255);
+            transition-duration: 0.1s;
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 30px;
+            text-align: center;
+            margin: 10px;
+        }
+        .el:hover {
+            filter: brightness(95%);
+            transform: scale(1.1, 1.1);
+            z-index: 1000;
+        }
+        .el:active {
+            filter: brightness(90%);
+        }
+        #container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            margin-bottom: 50px;
+        }
+        a {
+            font-family: sans-serif;
+            font-size: 3em;
+            color: white;
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
     <h1 id = "title">Title</h1>
+    <div id = "container">
+        <a href = "jayden dodge game/index.html"><div class = "el">jayden dod game</div></a>
+        <a href = "jayden dodge game/mobile.html"><div class = "el">jayden dod game but mobile</div></a>
+        <a href = "maze/index.html"><div class = "el">maez</div></a>
+        <a><div class = "el">hello</div></a>
+        <a><div class = "el">hello</div></a>
+        <a><div class = "el">hello</div></a>
+    </div>
 </body>
 </html>
