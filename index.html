@@ -55,5 +55,13 @@
         <a><div class = "el">hello</div></a>
         <a><div class = "el">hello</div></a>
     </div>
+    <script>
+        window.addEventListener("beforeunload", function (e) {
+			var confirmationMessage = "eeeee eeee?\neeeeeee eee eeee eeee eee ee eeeee.";
+
+			(e || window.event).returnValue = confirmationMessage; //Gecko + IE
+			return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+		});
+    </script>
 </body>
 </html>
