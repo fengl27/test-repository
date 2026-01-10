@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>pee</title>
+        <style>
+            body {
+                background-color: #5f9b8c;
+            }
+            #hosting {
+                visibility: hidden;
+                display: flex;
+                width: 100vw;
+                height: 100vh;
+
+                align-items: center;
+                justify-content: center;
+
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 5em;
+                color: #233c4b;
+
+                position: absolute;
+                top: 0px;
+                left: 0px;
+            }
+
+            
+            #chat {
+                visibility: hidden;
+                background-color: #233c4b;
+                position: absolute;
+                top: 0px;
+                bottom: 0px;
+                left: 0px;
+                right: 0px;
+                padding: 10px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #chat-messages {
+                background-color: #5f9b8c;
+                flex: 1;                    /* fills remaining space */
+                overflow-y: auto;           /* enable scrolling */
+
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+
+                padding: 10px;
+                border-radius: 10px;
+                
+                color: #233c4b;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            #chat-send {
+                background-color: #5f9b8c;
+                padding: 10px;
+                border-radius: 10px;
+
+                display: flex;
+                flex-direction: row;
+                gap: 10px;
+            }
+
+            #chat-send-message {
+                flex: 1;
+
+                border: 2px solid #233c4b;
+                border-radius: 5px;
+
+                font-size: 2em;
+            }
+
+            button {
+                font-family: sans-serif;
+                background-color: #a0c382;
+                border: 2px solid #233c4b;
+                border-radius: 5px;
+            }
+
+            button:hover {
+                filter: brightness(95%);
+            }
+
+            button:active {
+                filter: brightness(85%);
+            }
+
+            #chat-send-button {
+                font-size: 2em;
+            }
+        </style>
+        <style>
+            .peer-message, .you-message, .announcement-message {
+                padding: 10px;
+                font-weight: bold;
+            }
+            .peer-message {
+                background-color: #fac846;
+                border-radius: 5px 5px 0px 5px;
+                text-align: left;
+                width: fit-content;
+                margin-left: auto;
+            }
+            .you-message {
+                background-color: #ff7d2d;
+                border-radius: 5px 5px 5px 0px;
+                text-align: right;
+                width: fit-content;
+                margin-right: auto;
+            }
+            .announcement-message {
+                background-color: #a0c382;
+                border-radius: 5px;
+                text-align: center;
+            }
+
+            #choices > button, #choices > input {
+                font-size: 3em;
+                padding: 0.2em;
+            }
+        </style>
+    </head>
+    <body>
+        <div id = "choices">
+            <button onclick = 'host()'>Host</button><br>
+            <button onclick = 'join()'>Join</button>
+            <input type = "number" min = "100000" max = "999999" id = "input-code" placeholder = "join code...">
+        </div>
+        <div id = "hosting" hidden>
+            <h1 id = "hosting-txt">ERROR</h1>
+        </div>
+        <div id = "chat" hidden>
+            <div id = "chat-messages"></div>
+            <div id = "chat-send">
+                <input type = "text" id = "chat-send-message" placeholder = "Type here...">
+                <button id = "chat-send-button" onclick = "sendMessage()">Send?</button>
+            </div>
+        </div>
+    </body>
+    <!--Peer.js library (https://peerjs.com/)-->
+    <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+    <script src = "main.js"></script>
+</html>
