@@ -29,13 +29,16 @@ function handleData(data) {
     }
     //this is a message
     chatMessages.appendChild(createMessage("peer-message", data.txt));
+    chatMessages.scrollTo(chatMessages.scrollHeight);
 }
 function handleClose() {
     console.log("lolllll get dumped on");
     chatMessages.appendChild(createMessage("announcement-message", "He left..."));
+    chatMessages.scrollTo(chatMessages.scrollHeight);
 }
 function sendMessage() {
     chatMessages.appendChild(createMessage("you-message", chatSendTxt.value));
+    chatMessages.scrollTo(chatMessages.scrollHeight);
     conn.send({txt: chatSendTxt.value});
     chatSendTxt.value = "";//empty
 }
