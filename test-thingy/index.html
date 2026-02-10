@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>pee</title>
+        <style>
+            body {
+                background-color: #5f9b8c;
+            }
+            #hosting {
+                visibility: hidden;
+                display: flex;
+                width: 100vw;
+                height: 100vh;
+
+                align-items: center;
+                justify-content: center;
+
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 5em;
+                color: #233c4b;
+
+                position: absolute;
+                top: 0px;
+                left: 0px;
+            }
+
+            
+            #chat {
+                visibility: hidden;
+                background-color: #233c4b;
+                position: absolute;
+                top: 0px;
+                bottom: 0px;
+                left: 0px;
+                right: 0px;
+                padding: 10px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #chat-messages {
+                background-color: #5f9b8c;
+                flex: 1;                    /* fills remaining space */
+                overflow-y: auto;           /* enable scrolling */
+
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+
+                padding: 10px;
+                border-radius: 10px;
+                
+                color: #233c4b;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            #chat-send {
+                background-color: #5f9b8c;
+                padding: 10px;
+                border-radius: 10px;
+
+                display: flex;
+                flex-direction: row;
+                gap: 10px;
+            }
+
+            #chat-send-message {
+                flex: 1;
+
+                border: 2px solid #233c4b;
+                border-radius: 5px;
+
+                font-size: 2em;
+            }
+
+            button {
+                font-family: sans-serif;
+                background-color: #a0c382;
+                border: 2px solid #233c4b;
+                border-radius: 5px;
+            }
+
+            button:hover {
+                filter: brightness(95%);
+            }
+
+            button:active {
+                filter: brightness(85%);
+            }
+
+            #chat-send-button {
+                font-size: 2em;
+            }
+        </style>
+        <style>
+            .peer-message, .you-message, .announcement-message {
+                padding: 10px;
+                font-weight: bold;
+            }
+            .peer-message {
+                background-color: #fac846;
+                border-radius: 5px 5px 0px 5px;
+                text-align: left;
+                width: fit-content;
+                margin-left: auto;
+            }
+            .you-message {
+                background-color: #ff7d2d;
+                border-radius: 5px 5px 5px 0px;
+                text-align: right;
+                width: fit-content;
+                margin-right: auto;
+            }
+            .announcement-message {
+                background-color: #a0c382;
+                border-radius: 5px;
+                text-align: center;
+            }
+
+            #choices > button, #choices > input {
+                font-size: 3em;
+                padding: 0.2em;
+            }
+
+            .input-button {
+                background-color: rgba(255, 255, 255, 0.5);
+                color: black;
+                width: 50%;
+                height: 50vh;
+                position: absolute;
+                top: 0px;
+                left: 0px;
+            }
+            #thingy-stream {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+                width: 100%;
+                height: 100vh;
+            }
+        </style>
+    </head>
+    <body>
+        <div id = "choices">
+            <button onclick = 'host()'>Host</button><br>
+            <button onclick = 'join()'>Join</button>
+            <input type = "number" min = "100000" max = "999999" id = "input-code" placeholder = "join code...">
+        </div>
+        <div id = "hosting" hidden>
+            <h1 id = "hosting-txt">ERROR</h1>
+        </div>
+        <div id = "chat" hidden>
+            <video id = "thingy-stream"></video>
+            <textarea class = "input-button" onclick = "sendMessage('h')">press now?</textarea>
+        </div>
+    </body>
+    <!--Peer.js library (https://peerjs.com/)-->
+    <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+    <script>
+        // GET is the default method, so we don't need to set it
+        async function getHello() {
+            try {
+                const response = await fetch('/hello');
+                const text = await response.text();
+                console.log('GET response text:');
+                console.log(text); // Print the greeting as text
+            } catch (err) {
+                console.error('Error fetching /hello:', err);
+            }
+        }
+
+        async function postHello(data) {
+            try {
+                const response = await fetch('/hello', {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                /*
+                const text = await response.text();
+
+                console.log('POST response:');
+                console.log(text); // Should be 'OK'
+                */
+            } catch (err) {
+                console.error('Error posting to /hello:', err);
+            }
+        }
+
+    </script>
+    <script>
+const choiceDiv = document.getElementById("choices");
+const hostDiv = document.getElementById("hosting");
+const chatDiv = document.getElementById("chat");
+const hostIdEl = document.getElementById("hosting-txt");
+const codeInput = document.getElementById("input-code");
+
+var videoEl = document.getElementById("thingy-stream");
+
+const id = 100000 + Math.floor(900000 * Math.random());//your id
+var peer = new Peer(id);
+var conn;
+
+function createMessage(side, txt) {
+    var thing = document.createElement("div");
+    thing.textContent = txt;
+    thing.classList.add(side);
+    return thing;
+}
+
+function handleData(data) {
+    if(data === "connected") {
+        //hosting, connected
+        hostIdEl.textContent = "CONNECTED";
+        return;
+    }
+    //this is a message
+
+    console.log("I AM POSTING THE HELLO of " + data.txt);
+    postHello({key: data.txt});
+}
+function handleClose() {
+    console.log("lolllll get dumped on");
+}
+function sendMessage(txt) {
+    conn.send({txt: txt});
+}
+function host() {
+    console.log("ID " + id);
+    console.log("peer: ", peer);
+
+    choiceDiv.hidden = true;
+    hostDiv.style.visibility = "visible";
+    hostIdEl.textContent = id;
+
+    peer.on('connection', function(connection) {
+        console.log(connection.peer + " iddidiidididi");
+        conn = connection;
+        conn.on('data', handleData);
+
+        navigator.mediaDevices.getDisplayMedia({
+            video: true
+        }).then(stream => {
+            console.log("sending stream of doom");
+            var call = peer.call(connection.peer, stream);//one-sided call of doom
+        });
+    });
+    /*
+    peer.on('call', (call) => {
+        navigator.mediaDevices.getDisplayMedia({
+            video: true
+        }).then(stream => {
+            console.log("i am stream at you");
+            call.answer(stream);
+        });
+        console.log("i will stream at you");
+        call.on('stream', (stream) => {
+        });
+    });
+    */
+}
+function join() {
+    conn = peer.connect(codeInput.value);
+    // on open will be launch when you successfully connect to PeerServer
+    console.log("hello, probably");
+
+    /*
+    navigator.mediaDevices.getDisplayMedia({
+        video: true
+    }).then(stream => {
+        console.log("i am stream at you");
+        var call = peer.call(codeInput.value, stream);
+        call.on('stream', (stream) => {
+            videoEl.srcObject = stream;
+            videoEl.play();
+        });
+    });
+    */
+
+    conn.on('open', function(){
+        // here you have conn.id
+        console.log("IT TOTALLY WORKS!!!!");
+        conn.send('connected');
+        chatDiv.style.visibility = "visible";
+        choiceDiv.hidden = true;
+
+        //call jank of doom
+        peer.on('call', (call) => {
+            call.answer(); 
+
+            // Listen for the incoming stream from the calling peer
+            call.on('stream', (remoteStream) => {
+                // Display the remote stream in a video element
+                console.log(remoteStream.constructor.name);
+                videoEl.srcObject = remoteStream;
+                videoEl.play();
+            });
+        });
+            /*
+        navigator.mediaDevices.getDisplayMedia({
+            video: true
+        }).then(stream => {
+            var call = peer.call(conn.id, new Promise((resolve, reject) => {
+                resolve(new MediaStream());
+            }));
+            call.on('stream', (stream) => {
+                console.log("got stream of doom");
+                videoEl.srcObject = stream;
+                videoEl.play();
+            });
+        });
+            */
+    });
+    conn.on('data', handleData);
+    conn.on('error', function() {
+        console.log("ERROR ERROR ERROR");
+        choiceDiv.hidden = true;
+        hostDiv.style.visibility = "visible";
+    });
+
+    conn.on('close', handleClose);
+}
+    </script>
+</html>
