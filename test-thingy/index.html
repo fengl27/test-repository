@@ -263,12 +263,7 @@ const codeInput = document.getElementById("input-code");
 
 
 const id = 100000 + Math.floor(900000 * Math.random());//your id
-var peer = new Peer({
-    host: 'localhost', // e.g., 'localhost' or 'mypeerjs.com'
-    port: 9000, // The port your server is running on
-    path: '/myapp', // The path you defined on the server
-    secure: false // Set to true if using HTTPS/SSL
-}, id);
+var peer = new Peer(id);
 peer.on('error', (err) => {
     console.error('Peer error:', err);
     document.body.style.backgroundColor = "red";
