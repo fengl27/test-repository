@@ -264,6 +264,11 @@ const codeInput = document.getElementById("input-code");
 
 const id = 100000 + Math.floor(900000 * Math.random());//your id
 var peer = new Peer(id);
+peer.on('error', (err) => {
+    console.error('Peer error:', err);
+    document.body.style.backgroundColor = "red";
+    console.log("something happened");
+});
 var conn;
 
 function createMessage(side, txt) {
