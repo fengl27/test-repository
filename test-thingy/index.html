@@ -154,11 +154,147 @@
         </div>
         <div id = "chat" hidden>
             <video id = "thingy-stream"></video>
-            <textarea class = "input-button" onclick = "sendMessage('h')">press now?</textarea>
         </div>
     </body>
     <!--Peer.js library (https://peerjs.com/)-->
     <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+    <script>
+var currentTouches = [];
+var copyTouch = function({identifier, pageX, pageY}) {
+    return {identifier, pageX, pageY};
+}
+var getTouchId = function(target) {
+    for(var j = 0; j < currentTouches.length; j ++) {
+        if(currentTouches[j].identifier === target) {
+            return j;
+        }
+    }
+    return -1;//not found
+};
+canvas.addEventListener("touchstart", function(e) {
+    e.preventDefault();
+    var touches = e.changedTouches;
+    for(var i = 0; i < touches.length; i ++) {
+        currentTouches.push(copyTouch(touches[i]));
+        //text(touches[i].identifier, touches[i].pageX, touches[i].pageY);
+        handleTouchStart(copyTouch(touches[i]));
+    }
+});
+canvas.addEventListener("touchmove", function(e) {
+    e.preventDefault();
+    var touches = e.changedTouches;
+    for(var i = 0; i < touches.length; i ++) {
+        var id = getTouchId(touches[i].identifier);
+        //line(currentTouches[id].pageX, currentTouches[id].pageY, touches[i].pageX, touches[i].pageY);
+        currentTouches.splice(id, 1, copyTouch(touches[i]));
+    }
+    
+});
+canvas.addEventListener("touchend", function(e) {
+    e.preventDefault();
+    var touches = e.changedTouches;
+    for(var i = 0; i < touches.length; i ++) {
+        //text(touches[i].identifier, touches[i].pageX, touches[i].pageY);
+        var id = getTouchId(touches[i].identifier);
+        //line(currentTouches[id].pageX, currentTouches[id].pageY, touches[i].pageX, touches[i].pageY);
+        handleTouchEnd(copyTouch(touches[i]));
+        currentTouches.splice(id, 1);
+    }
+});
+canvas.addEventListener("touchcancel", function(e) {
+    e.preventDefault();
+    var touches = e.changedTouches;
+    for(var i = 0; i < touches.length; i ++) {
+        var id = getTouchId(touches[i].identifier);
+        currentTouches.splice(id, 1);
+    }
+});
+var controls = [];
+
+var Button = function(x, y, w, h, hx, hy, hw, hh, pressF, releaseF, shouldHide, texture, pressTexture) {//x, y, width, height, function
+    this.fs = [pressF, releaseF];
+    this.pos = new PVector(x, y);
+    this.size = new PVector(w, h);
+    this.actualPos = new PVector(hx, hy);
+    this.actualSize = new PVector(hw, hh);
+    this.isPressed = false;
+    this.lastPressed = false;
+    this.shouldHide = shouldHide || false;
+    this.texture = texture;
+    this.pressTexture = pressTexture;
+};
+Button.prototype.display = function() {
+    if(!this.shouldHide) {
+        if(this.texture) {
+            if(this.isPressed) {
+                ctx.drawImage(this.pressTexture, this.pos.x, this.pos.y, this.size.x, this.size.y);
+            }
+            else {
+                ctx.drawImage(this.texture, this.pos.x, this.pos.y, this.size.x, this.size.y);
+            }
+        }
+        else {
+            if(this.isPressed) {
+                fill(48, 48, 48);
+            }
+            else {
+                fill(100, 100, 100);
+            }
+            rect(this.pos.x, this.pos.y, this.size.x, this.size.y);
+        }
+    }
+};
+Button.prototype.initialize = function() {
+    if(this.lastPressed && !this.isPressed) {
+        this.fs[1]();//you just released it
+    }
+    this.lastPressed = this.isPressed;
+    this.isPressed = false;
+};
+Button.prototype.update = function(pos) {
+    if(pos.x > this.actualPos.x && pos.x < this.actualPos.x + this.actualSize.x && pos.y > this.actualPos.y && pos.y < this.actualPos.y + this.actualSize.y) {
+        if(!this.isPressed) {
+            this.fs[0]();
+        }
+        this.isPressed = true;
+    }
+};
+
+var buttons = [
+    new Button(canvas.width / 10, canvas.height * 6/8, canvas.height / 8, canvas.height / 8, 0, 0, canvas.width / 10 + canvas.height / 8, canvas.height, function() {
+        controls[0] = true;
+    }, function() {
+        controls[0] = false;
+    }, false, document.getElementById("left"), document.getElementById("left-pressed")),
+    new Button(canvas.width / 10 + canvas.height / 8 + 5, canvas.height * 6/8, canvas.height / 8, canvas.height / 8, canvas.width / 10 + canvas.height / 8, 0, canvas.width / 2 - canvas.width / 10 - canvas.height / 8, canvas.height, function() {
+        controls[1] = true;
+    }, function() {
+        controls[1] = false;
+    }, false, document.getElementById("right"), document.getElementById("right-pressed")),
+    new Button(0, 0, 0, 0, canvas.width /2, 0, canvas.width / 2, canvas.height, function() {
+        controls[2] = true;
+    }, function() {
+        controls[2] = false;
+    }, true),
+];
+
+var doMobile = function() {
+    for(var i = 0; i < buttons.length; i ++) {
+        buttons[i].initialize();
+    }
+    for(var i = 0; i < currentTouches.length; i ++) {
+        var pos = new PVector(currentTouches[i].pageX, currentTouches[i].pageY);
+        for(var j = 0; j < buttons.length; j ++) {
+            buttons[j].update(pos);
+        }
+    }
+};
+var displayMobile = function() {
+    for(var i = 0; i < buttons.length; i ++) {
+        buttons[i].display();
+    }
+};
+    </script>
     <script>
         // GET is the default method, so we don't need to set it
         async function getHello() {
@@ -194,6 +330,8 @@
 
     </script>
     <script>
+var handleTouchStart = function() {};
+var handleTouchEnd   = function() {};
 const choiceDiv = document.getElementById("choices");
 const hostDiv = document.getElementById("hosting");
 const chatDiv = document.getElementById("chat");
@@ -222,13 +360,13 @@ function handleData(data) {
     //this is a message
 
     console.log("I AM POSTING THE HELLO of " + data.txt);
-    postHello({key: data.txt});
+    postHello({x: data.x * window.screen.width, y: data.y * window.screen.height});
 }
 function handleClose() {
     console.log("lolllll get dumped on");
 }
-function sendMessage(txt) {
-    conn.send({txt: txt});
+function sendMessage(x, y, type) {
+    conn.send({x:x, y:y, type:type});//type is whether it's mouse down or mouse up
 }
 function host() {
     console.log("ID " + id);
@@ -250,37 +388,11 @@ function host() {
             var call = peer.call(connection.peer, stream);//one-sided call of doom
         });
     });
-    /*
-    peer.on('call', (call) => {
-        navigator.mediaDevices.getDisplayMedia({
-            video: true
-        }).then(stream => {
-            console.log("i am stream at you");
-            call.answer(stream);
-        });
-        console.log("i will stream at you");
-        call.on('stream', (stream) => {
-        });
-    });
-    */
 }
 function join() {
     conn = peer.connect(codeInput.value);
     // on open will be launch when you successfully connect to PeerServer
     console.log("hello, probably");
-
-    /*
-    navigator.mediaDevices.getDisplayMedia({
-        video: true
-    }).then(stream => {
-        console.log("i am stream at you");
-        var call = peer.call(codeInput.value, stream);
-        call.on('stream', (stream) => {
-            videoEl.srcObject = stream;
-            videoEl.play();
-        });
-    });
-    */
 
     conn.on('open', function(){
         // here you have conn.id
@@ -299,22 +411,26 @@ function join() {
                 console.log(remoteStream.constructor.name);
                 videoEl.srcObject = remoteStream;
                 videoEl.play();
+
+                handleTouchStart = function(t) {
+                    //t.pageX and t.pageY are x and y
+                    var videoRect = videoEl.getBoundingClientRect();
+                    sendMessage(
+                        (t.pageX - videoRect.x) / videoRect.width,
+                        (t.pageY - videoRect.y) / videoRect.height,
+                        true
+                    );
+                };
+                handleTouchEnd = function(t) {
+                    var videoRect = videoEl.getBoundingClientRect();
+                    sendMessage(
+                        (t.pageX - videoRect.x) / videoRect.width,
+                        (t.pageY - videoRect.y) / videoRect.height,
+                        false
+                    );
+                };
             });
         });
-            /*
-        navigator.mediaDevices.getDisplayMedia({
-            video: true
-        }).then(stream => {
-            var call = peer.call(conn.id, new Promise((resolve, reject) => {
-                resolve(new MediaStream());
-            }));
-            call.on('stream', (stream) => {
-                console.log("got stream of doom");
-                videoEl.srcObject = stream;
-                videoEl.play();
-            });
-        });
-            */
     });
     conn.on('data', handleData);
     conn.on('error', function() {
