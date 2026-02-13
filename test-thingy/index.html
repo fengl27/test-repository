@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>pee</title>
+        <title>DEPRESSING THINGY CLICKER OF DOOM</title>
         <style>
             body {
                 background-color: #5f9b8c;
@@ -139,7 +139,8 @@
                 top: 0px;
                 left: 0px;
                 width: 100%;
-                height: 100vh;
+                aspect-ratio: 16/9;
+                background-color: grey;
             }
         </style>
     </head>
@@ -159,6 +160,7 @@
     <!--Peer.js library (https://peerjs.com/)-->
     <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
     <script>
+var videoEl = document.getElementById("thingy-stream");
 var currentTouches = [];
 var copyTouch = function({identifier, pageX, pageY}) {
     return {identifier, pageX, pageY};
@@ -171,7 +173,7 @@ var getTouchId = function(target) {
     }
     return -1;//not found
 };
-canvas.addEventListener("touchstart", function(e) {
+videoEl.addEventListener("touchstart", function(e) {
     e.preventDefault();
     var touches = e.changedTouches;
     for(var i = 0; i < touches.length; i ++) {
@@ -180,7 +182,10 @@ canvas.addEventListener("touchstart", function(e) {
         handleTouchStart(copyTouch(touches[i]));
     }
 });
-canvas.addEventListener("touchmove", function(e) {
+videoEl.addEventListener("mousedown", function(e) {
+    handleTouchStart({identifier: -1, pageX: e.clientX, pageY: e.clientY});
+});
+videoEl.addEventListener("touchmove", function(e) {
     e.preventDefault();
     var touches = e.changedTouches;
     for(var i = 0; i < touches.length; i ++) {
@@ -190,7 +195,7 @@ canvas.addEventListener("touchmove", function(e) {
     }
     
 });
-canvas.addEventListener("touchend", function(e) {
+videoEl.addEventListener("touchend", function(e) {
     e.preventDefault();
     var touches = e.changedTouches;
     for(var i = 0; i < touches.length; i ++) {
@@ -201,7 +206,10 @@ canvas.addEventListener("touchend", function(e) {
         currentTouches.splice(id, 1);
     }
 });
-canvas.addEventListener("touchcancel", function(e) {
+videoEl.addEventListener("mouseup", function(e) {
+    handleTouchEnd({identifier: -1, pageX: e.clientX, pageY: e.clientY});
+});
+videoEl.addEventListener("touchcancel", function(e) {
     e.preventDefault();
     var touches = e.changedTouches;
     for(var i = 0; i < touches.length; i ++) {
@@ -209,91 +217,6 @@ canvas.addEventListener("touchcancel", function(e) {
         currentTouches.splice(id, 1);
     }
 });
-var controls = [];
-
-var Button = function(x, y, w, h, hx, hy, hw, hh, pressF, releaseF, shouldHide, texture, pressTexture) {//x, y, width, height, function
-    this.fs = [pressF, releaseF];
-    this.pos = new PVector(x, y);
-    this.size = new PVector(w, h);
-    this.actualPos = new PVector(hx, hy);
-    this.actualSize = new PVector(hw, hh);
-    this.isPressed = false;
-    this.lastPressed = false;
-    this.shouldHide = shouldHide || false;
-    this.texture = texture;
-    this.pressTexture = pressTexture;
-};
-Button.prototype.display = function() {
-    if(!this.shouldHide) {
-        if(this.texture) {
-            if(this.isPressed) {
-                ctx.drawImage(this.pressTexture, this.pos.x, this.pos.y, this.size.x, this.size.y);
-            }
-            else {
-                ctx.drawImage(this.texture, this.pos.x, this.pos.y, this.size.x, this.size.y);
-            }
-        }
-        else {
-            if(this.isPressed) {
-                fill(48, 48, 48);
-            }
-            else {
-                fill(100, 100, 100);
-            }
-            rect(this.pos.x, this.pos.y, this.size.x, this.size.y);
-        }
-    }
-};
-Button.prototype.initialize = function() {
-    if(this.lastPressed && !this.isPressed) {
-        this.fs[1]();//you just released it
-    }
-    this.lastPressed = this.isPressed;
-    this.isPressed = false;
-};
-Button.prototype.update = function(pos) {
-    if(pos.x > this.actualPos.x && pos.x < this.actualPos.x + this.actualSize.x && pos.y > this.actualPos.y && pos.y < this.actualPos.y + this.actualSize.y) {
-        if(!this.isPressed) {
-            this.fs[0]();
-        }
-        this.isPressed = true;
-    }
-};
-
-var buttons = [
-    new Button(canvas.width / 10, canvas.height * 6/8, canvas.height / 8, canvas.height / 8, 0, 0, canvas.width / 10 + canvas.height / 8, canvas.height, function() {
-        controls[0] = true;
-    }, function() {
-        controls[0] = false;
-    }, false, document.getElementById("left"), document.getElementById("left-pressed")),
-    new Button(canvas.width / 10 + canvas.height / 8 + 5, canvas.height * 6/8, canvas.height / 8, canvas.height / 8, canvas.width / 10 + canvas.height / 8, 0, canvas.width / 2 - canvas.width / 10 - canvas.height / 8, canvas.height, function() {
-        controls[1] = true;
-    }, function() {
-        controls[1] = false;
-    }, false, document.getElementById("right"), document.getElementById("right-pressed")),
-    new Button(0, 0, 0, 0, canvas.width /2, 0, canvas.width / 2, canvas.height, function() {
-        controls[2] = true;
-    }, function() {
-        controls[2] = false;
-    }, true),
-];
-
-var doMobile = function() {
-    for(var i = 0; i < buttons.length; i ++) {
-        buttons[i].initialize();
-    }
-    for(var i = 0; i < currentTouches.length; i ++) {
-        var pos = new PVector(currentTouches[i].pageX, currentTouches[i].pageY);
-        for(var j = 0; j < buttons.length; j ++) {
-            buttons[j].update(pos);
-        }
-    }
-};
-var displayMobile = function() {
-    for(var i = 0; i < buttons.length; i ++) {
-        buttons[i].display();
-    }
-};
     </script>
     <script>
         // GET is the default method, so we don't need to set it
@@ -338,7 +261,6 @@ const chatDiv = document.getElementById("chat");
 const hostIdEl = document.getElementById("hosting-txt");
 const codeInput = document.getElementById("input-code");
 
-var videoEl = document.getElementById("thingy-stream");
 
 const id = 100000 + Math.floor(900000 * Math.random());//your id
 var peer = new Peer(id);
@@ -360,12 +282,13 @@ function handleData(data) {
     //this is a message
 
     console.log("I AM POSTING THE HELLO of " + data.txt);
-    postHello({x: data.x * window.screen.width, y: data.y * window.screen.height});
+    postHello({x: data.x, y: data.y, type: data.type});
 }
 function handleClose() {
     console.log("lolllll get dumped on");
 }
 function sendMessage(x, y, type) {
+    console.log("sending data, x = " + x + ", y = " + y + ", type = " + type);
     conn.send({x:x, y:y, type:type});//type is whether it's mouse down or mouse up
 }
 function host() {
