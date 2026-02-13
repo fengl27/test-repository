@@ -324,7 +324,6 @@ function join() {
 
     conn.on('open', function(){
         // here you have conn.id
-        document.body.style.backgroundColor = "green";
         console.log("IT TOTALLY WORKS!!!!");
         conn.send('connected');
         chatDiv.style.visibility = "visible";
@@ -362,10 +361,12 @@ function join() {
         });
     });
     conn.on('data', handleData);
-    conn.on('error', function() {
+    conn.on('error', function(err) {
         console.log("ERROR ERROR ERROR");
         choiceDiv.hidden = true;
         hostDiv.style.visibility = "visible";
+        hostIdEl.textContent = err;
+        hostIdEl.style.fontSize = "1.5em";
     });
 
     conn.on('close', handleClose);
