@@ -324,6 +324,7 @@ function join() {
 
     conn.on('open', function(){
         // here you have conn.id
+        document.body.style.backgroundColor = "green";
         console.log("IT TOTALLY WORKS!!!!");
         conn.send('connected');
         chatDiv.style.visibility = "visible";
