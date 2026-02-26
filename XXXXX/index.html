@@ -1,1 +1,47 @@
-
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>just search up "really really hard riddles" lol</title>
+		<style>
+			
+		</style>
+	</head>
+	<body>
+    <div id = "failed">
+      YOU HAVE FAILED
+      <!--the password is '54nA2dwqSm' btw-->
+      <input type = "text" placeholder = "ClearBrowsingHistory" onkeyup = "if(this.value === '54nA2dwqSm') {window.localStorage.setItem('super-rando-depressed-variable', false);}">
+    </div>
+    <div id = "question">
+      ONLY 1 ATTEMPT:
+      ANSWER COMPLETELY LOWERCASE, ALL ANSWERS ARE ONE WORD
+      <span id = "questions">
+  		  I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?
+      </span>
+      <input type = "text" id = "input-answer"></input>
+      <button onclick = "answer()">Submit</button>
+    </div>
+	</body>
+  <script>
+    if(window.localStorage.getItem("super-rando-depressed-variable") {
+      document.getElementById("question").hidden = true;
+      document.getElementById("failed").hidden = false;
+    }
+    var questions = [
+      ["", "echo"]
+    ];
+    var currQuestion = 0;
+    var question = document.getElementById("questions");
+    var inputAnswer = document.body.getElementById("input-answer");
+    function answer() {
+      if(inputAnswer.value === questions[currQuestion][0]) {
+        currQuestion ++;
+        inputAnswer.value = "";
+        question.textContent = questions[currQuestion][0];
+      }
+      else {
+        window.localStorage.setItem("super-rando-depressed-variable", true);
+      }
+    }
+  </script>
+</html>
