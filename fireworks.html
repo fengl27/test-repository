@@ -22,6 +22,10 @@
     </body>
     <script>
         var canvas = document.getElementById("yourcanvas");
+
+        var sizeMult = canvas.height / 1080;
+        console.log(sizeMult);
+        console.log(canvas.height);
         
         canvas.addEventListener("click", function() {
             canvas.requestFullscreen();
@@ -31,6 +35,9 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             ctx.lineWidth = 6;
+            sizeMult = canvas.height / 1080;
+            console.log(sizeMult);
+            console.log(canvas.height);
         });
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -59,7 +66,7 @@
             vy: 0,
             screenshakeMult: 7,
             shake(mag, dx, dy) {
-                mag *= this.screenshakeMult;
+                mag *= this.screenshakeMult * sizeMult;
                 var dir = arguments.length !== 1? Math.atan2(dy, dx): Math.random() * Math.PI * 2;
                 this.vx += Math.cos(dir) * mag;
                 this.vy += Math.sin(dir) * mag;
@@ -174,27 +181,27 @@
         };
         const phi = (Math.sqrt(5) + 1) / 2;//golden
         class Firework {
-            static gravity = 0.05;
-            static launchVel = 8;
-            static size = 7;
+            static gravity = () => 0.05 * sizeMult;
+            static launchVel = () => 8 * sizeMult;
+            static size = () => 7 * sizeMult;
             static phiRot = phi * Math.PI * 2;
-            static particleSpawnVel = 10;//for the big circle of particles
+            static particleSpawnVel = () => 10 * sizeMult;//for the big circle of particles
             constructor(pos, col, type) {
                 this.pos = Vect.get(pos);
                 let yLaunchMult = lerp(0.8, 1.1, Math.random());
                 let xLaunchOffset = lerp(-5, 5, Math.random());
-                this.vel = new Vect((canvas.width/2 - pos.x) / 250, -Firework.launchVel * yLaunchMult);
+                this.vel = new Vect((canvas.width/2 - pos.x) / canvas.width*4, -Firework.launchVel() * yLaunchMult);
                 this.type = type;
                 this.col = `hsl(${lerp(25, 50, Math.random())}, 75%, 50%)`;
                 this.particleCol = col;
 
-                this.timer = -this.vel.y / Firework.gravity * lerp(0.95, 1.05, Math.random());
+                this.timer = -this.vel.y / Firework.gravity() * lerp(0.95, 1.05, Math.random());
                 //this.col = col || `oklch(0.7285 0.1455 ${Math.random() * 360})`;
                 this.dead = false;
             }
 
             update() {
-                this.vel.y += Firework.gravity;//gravity
+                this.vel.y += Firework.gravity();//gravity
                 this.pos.add(this.vel);
                 this.timer --;
                 if(this.timer < 0) {
@@ -202,12 +209,13 @@
                     screenshake.shake(1);
 
                     let rotAmt = 0;
+                    let fireworkSize = lerp(0.9, 1.2, Math.random()) * Firework.particleSpawnVel();
                     for(var dst = 0; dst <= 1; dst += 0.01) {
                         let sqrtDst = easings.easeInSine(Math.sqrt(dst));
                         rotAmt += Firework.phiRot;
                         let vel = new Vect(
-                            Math.cos(rotAmt) * sqrtDst * Firework.particleSpawnVel,
-                            Math.sin(rotAmt) * sqrtDst * Firework.particleSpawnVel
+                            Math.cos(rotAmt) * sqrtDst * fireworkSize,
+                            Math.sin(rotAmt) * sqrtDst * fireworkSize
                         );
                         fireworkParticles.push(new FireworkPart(this.pos, vel, this.particleCol));
                     }
@@ -220,7 +228,7 @@
             display() {
                 ctx.fillStyle = this.col;
                 ctx.beginPath();
-                ctx.arc(this.pos.x, this.pos.y, Firework.size, 0, Math.PI * 2);
+                ctx.arc(this.pos.x, this.pos.y, Firework.size(), 0, Math.PI * 2);
                 ctx.fill();
             }
 
@@ -231,7 +239,7 @@
         }
 
         class FireworkPart extends Firework {
-            static size = 5;
+            static size = () => 5*sizeMult;
 
             constructor(pos, vel, col) {
                 super(pos);
@@ -246,7 +254,7 @@
             }
 
             update() {
-                this.vel.y += Firework.gravity * this.gravity;
+                this.vel.y += Firework.gravity() * this.gravity;
                 this.vel.mult(this.friction);
                 this.pos.add(this.vel);
                 this.timer --;
@@ -264,14 +272,14 @@
                 ctx.fillStyle = this.col;
                 ctx.globalAlpha = alpha;
                 ctx.beginPath();
-                ctx.arc(this.pos.x, this.pos.y, FireworkPart.size * this.sizeMult, 0, Math.PI * 2);
+                ctx.arc(this.pos.x, this.pos.y, FireworkPart.size() * this.sizeMult, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.globalAlpha = 1;
             }
         }
 
         class FireworkTrail extends Firework {
-            static size = 20;
+            static size = () => 20*sizeMult;
             static smokeCol = [100, 100, 100, 0.1];
             constructor(pos, vel, col) {
                 super(pos);
@@ -281,7 +289,7 @@
             }
 
             update() {
-                this.vel.y += Firework.gravity * 0.5;//gravity
+                this.vel.y += Firework.gravity() * 0.5;//gravity
                 this.vel.mult(0.95);
                 this.pos.add(this.vel);
                 this.timer --;
@@ -294,7 +302,7 @@
                 let alpha = FireworkTrail.smokeCol[3] * (1 - easings.easeOutQuad(1-this.timer / this.startTimer));
                 ctx.fillStyle = `rgba(${FireworkTrail.smokeCol.slice(0, 3).join(", ")}, ${alpha})`;
                 ctx.beginPath();
-                ctx.arc(this.pos.x, this.pos.y, FireworkTrail.size, 0, Math.PI * 2);
+                ctx.arc(this.pos.x, this.pos.y, FireworkTrail.size(), 0, Math.PI * 2);
                 ctx.fill();
             }
         }
@@ -310,9 +318,9 @@
             ctx.save();
             ctx.translate(screenshake.x, screenshake.y);
             let amt = (Math.sin(Date.now() / 10000)+1)/2;
-            console.log(amt);
             if(Math.random() <= lerp(0.025, 0.08, amt)){
-                fireworks.push(new Firework(new Vect(Math.random() * canvas.width, canvas.height), `hsl(${Math.random()*360}, 75%, 50%)`));
+                let x = lerp(canvas.width / 5, canvas.width * 4/5, Math.random());
+                fireworks.push(new Firework(new Vect(x, canvas.height), `hsl(${Math.random()*360}, 75%, 50%)`));
                 
             }
             for(var i = 0;i<fireworkParticles.length;i++){
@@ -330,11 +338,12 @@
                 }
             }
             ctx.fillStyle = "white";
-            ctx.font = "bold 100px Arial";
+            let fontSize = canvas.width / 16;
+            ctx.font = `bold ${fontSize}px Arial`;
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.save();
-            ctx.translate(canvas.width / 2, 100);
+            ctx.translate(canvas.width / 2, fontSize);
             let scale = Math.sin(Date.now() / 500) * 0.05 + 1;
             let rotation = Math.sin(Date.now() / 500 * phi) * 0.08;
             ctx.scale(scale, scale);
